@@ -13,60 +13,65 @@ const Datastore = require("gray-nedb");
 const userDB = new Datastore({ filename: "users.db", autoload: true });
 
 // Middleware for password validation
-const validatePassword = (password) => {
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}|:<>?~]).{8,}$/;
-    return regex.test(password);
-};
+// Email Validation Regex
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // -------- Register User --------
 exports.registerUser = (req, res) => {
-    const { username, email, password } = req.body;
+  const { username, email, password } = req.body;
 
-    // Validate input fields
-    if (!username || !email || !password) {
-        return res.status(400).json({ message: "All fields are required." });
-    }
+  // Validate inputs
+  if (!username || !email || !password) {
+      return res.status(400).json({ message: "Username, email, and password are required" });
+  }
 
-    // Check password strength
-    if (!validatePassword(password)) {
-        return res.status(400).json({
-            message:
-                "Password must have at least 8 characters, one uppercase, one lowercase, one number, and one special character.",
-        });
-    }
+  if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+  }
 
-    // Check if the user already exists
-    userDB.findOne({ $or: [{ username }, { email }] }, (err, existingUser) => {
-        if (err) {
-            return res.status(500).json({ message: "Database error." });
-        }
-        if (existingUser) {
-            return res.status(400).json({ message: "Username or email already exists." });
-        }
+  if (password.length < 8 || !/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[!@#$%^&*]/.test(password)) {
+      return res.status(400).json({
+          message: "Password must be at least 8 characters long and include an uppercase letter, a number, and a special character.",
+      });
+  }
 
-        // Hash the password
-        const hashedPassword = bcrypt.hashSync(password, 10);
+  // Check if user or email already exists
+  userDB.findOne({ $or: [{ username }, { email }] }, (err, existingUser) => {
+      if (err) {
+          console.error("Database error:", err);
+          return res.status(500).json({ message: "Internal server error" });
+      }
+      if (existingUser) {
+          return res.status(400).json({ message: "Username or email already exists" });
+      }
 
-        // Create the user object
-        const newUser = {
-            username,
-            email,
-            password: hashedPassword,
-            createdAt: new Date(),
-        };
+      // Hash the password
+      const hashedPassword = bcrypt.hashSync(password, 10);
 
-        // Save to database
-        userDB.insert(newUser, (err, savedUser) => {
-            if (err) {
-                return res.status(500).json({ message: "Failed to save user." });
-            }
+      // Create and save the user
+      const newUser = {
+          username,
+          email,
+          password: hashedPassword,
+          createdAt: new Date(),
+      };
 
-            res.status(201).json({
-                message: "User registered successfully!",
-                user: { id: savedUser._id, username: savedUser.username, email: savedUser.email },
-            });
-        });
-    });
+      userDB.insert(newUser, (err, createdUser) => {
+          if (err) {
+              console.error("Error saving user:", err);
+              return res.status(500).json({ message: "Failed to register user" });
+          }
+
+          res.status(201).json({
+              message: "User registered successfully",
+              user: {
+                  username: createdUser.username,
+                  email: createdUser.email,
+                  createdAt: createdUser.createdAt,
+              },
+          });
+      });
+  });
 };
 
 // -------- Login User --------
@@ -93,33 +98,6 @@ exports.loginUser = (req, res) => {
         res.status(200).json({ token, username: user.username });
     });
 };
-
-// exports.loginUser = (req, res) => {
-//   const { username, password } = req.body;
-
-//   console.log("Received username:", username);
-//   console.log("Received password:", password);
-
-//   const user = users.find((u) => u.username === username);
-
-//   if (!user) {
-//       console.log("User not found");
-//       return res.status(400).json({ message: "Invalid username or password" });
-//   }
-
-//   console.log("Stored hashed password:", user.password);
-
-//   const isValid = bcrypt.compareSync(password, user.password);
-//   if (!isValid) {
-//       console.log("Password comparison failed");
-//       return res.status(400).json({ message: "Invalid username or password" });
-//   }
-
-//   console.log("Password matched successfully!");
-
-//   const token = jwt.sign({ id: user.id, username: user.username }, "your_jwt_secret", { expiresIn: "1h" });
-//   res.json({ token });
-// };
 
 exports.newList = function (req, res) {
   conf.init();
@@ -251,28 +229,41 @@ exports.rateTalkById = [
   },
 ];
 
-exports.addCommentToTalk = (talkId, userId, comment, res) => {
+exports.addCommentToTalk = (req, res) => {
+  const { id: talkId } = req.params; // Extract talk ID from request params
+  const { comment } = req.body; // Extract comment from request body
+  const { username } = req.user; // Extract username from decoded token in auth middleware
+
+  // Load the conference model
   const confDAO = require("../models/confModel");
   const conf = new confDAO({ filename: "conf.db", autoload: true });
 
+  // Validate the comment
+  if (!comment || comment.trim() === "") {
+      return res.status(400).json({ message: "Comment cannot be empty" });
+  }
+
+  // Fetch the talk by ID
   conf.getTalkById(talkId)
       .then((talk) => {
           if (!talk || talk.length === 0) {
               return res.status(404).json({ message: "Talk not found" });
           }
 
-          // Add new comment
+          // Construct the new comment object
           const userComment = {
-              userId,
+              username, // Use the username from the decoded token
               comment,
               timestamp: new Date(),
           };
+
+          // Append the new comment to the existing comments
           const updatedComments = [...(talk[0].comments || []), userComment];
 
-          // Update talk with new comments
+          // Update the talk's comments in the database
           conf.conf.update(
-              { id: talkId },
-              { $set: { comments: updatedComments } },
+              { id: talkId }, // Match the talk ID
+              { $set: { comments: updatedComments } }, // Update the comments field
               {},
               (err) => {
                   if (err) {
@@ -280,7 +271,7 @@ exports.addCommentToTalk = (talkId, userId, comment, res) => {
                       return res.status(500).json({ message: "Failed to add comment" });
                   }
 
-                  // Return the updated talk object
+                  // Send back the updated talk with comments
                   res.status(200).json({ ...talk[0], comments: updatedComments });
               }
           );
