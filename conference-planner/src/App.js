@@ -1,98 +1,67 @@
-// import React, { useState } from "react";
-// import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-// import Talks from "./components/Talks";
-// import TalkDetails from "./components/TalkDetails";
-// import Login from "./components/Login";
-
-// // Example components for demonstration
-// const Home = () => <h1>Welcome to the Conference Planner!</h1>;
-
-// const Itinerary = () => <h1>Your Itinerary</h1>;
-
-// function App() {
-//   const [token, setToken] = useState(sessionStorage.getItem("token") || null);
-
-//   return (
-//     <BrowserRouter>
-//       <nav>
-//         <Link to="/">Home</Link> |{" "}
-//         <Link to="/talks">Talks</Link> |{" "}
-//         <Link to="/itinerary">Itinerary</Link> |{" "}
-//         {!token ? <Link to="/login">Login</Link> : <button onClick={() => {
-//           sessionStorage.removeItem("token");
-//           setToken(null);
-//         }}>Logout</button>}
-//       </nav>
-//       <Routes>
-//         <Route path="/" element={<Home />} />
-//         <Route path="/talks" element={<Talks isAuthenticated={!!token} />} />
-//         <Route path="/talks/:id" element={<TalkDetails isAuthenticated={!!token} />} />
-//         <Route path="/itinerary" element={<Itinerary />} />
-//         <Route path="/login" element={<Login setToken={setToken} />} />
-//       </Routes>
-//     </BrowserRouter>
-//   );
-// }
-
-// export default App;
-
 import React, { useState } from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import Home from "./components/Home"; 
 import Talks from "./components/Talks";
 import TalkDetails from "./components/TalkDetails";
 import Login from "./components/Login";
+import Register from "./components/Register";
 import Itinerary from "./components/Itinerary";
 
-// Home Component
-const Home = () => <h1>Welcome to the Conference Planner!</h1>;
-
 function App() {
-  const [token, setToken] = useState(sessionStorage.getItem("token") || null);
+    const [token, setToken] = useState(sessionStorage.getItem("token") || null);
 
-  return (
-    <BrowserRouter>
-      <header>
-        <nav>
-          <Link to="/">Home</Link> |{" "}
-          <Link to="/talks">Talks</Link> |{" "}
-          <Link to="/itinerary">Itinerary</Link> |{" "}
-          {!token ? (
-            <Link to="/login">Login</Link>
-          ) : (
-            <button
-              onClick={() => {
-                sessionStorage.removeItem("token");
-                setToken(null);
-              }}
-            >
-              Logout
-            </button>
-          )}
-        </nav>
-      </header>
-      <main>
-        <Routes>
-          {/* Home Page */}
-          <Route path="/" element={<Home />} />
+    const handleLogout = () => {
+        sessionStorage.removeItem("token");
+        setToken(null);
+    };
 
-          {/* Talks Page */}
-          <Route path="/talks" element={<Talks isAuthenticated={!!token} />} />
+    return (
+        <BrowserRouter>
+            {/* Header Section */}
+            <header>
+                <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
+                    <div className="container-fluid">
+                        <Link to="/" className="navbar-brand">Conference Planner</Link>
+                        <div className="navbar-nav">
+                            <Link to="/talks" className="nav-link">Talks</Link>
+                            <Link to="/itinerary" className="nav-link">Itinerary</Link>
+                            {!token ? (
+                                <>
+                                    <Link to="/login" className="nav-link">Login</Link>
+                                    <Link to="/register" className="nav-link">Register</Link>
+                                </>
+                            ) : (
+                                <button onClick={handleLogout} className="btn btn-outline-light ms-2">Logout</button>
+                            )}
+                        </div>
+                    </div>
+                </nav>
+            </header>
 
-          {/* Talk Details Page */}
-          <Route
-            path="/talks/:id"
-            element={<TalkDetails isAuthenticated={!!token} />}
-          />
+            {/* Main Content */}
+            <main className="container my-4">
+                <Routes>
+                    {/* Home Page */}
+                    <Route path="/" element={<Home isAuthenticated={!!token} />} />
 
-          {/* Itinerary Page */}
-          <Route path="/itinerary" element={<Itinerary />} />
+                    {/* Talks Page */}
+                    <Route path="/talks" element={<Talks isAuthenticated={!!token} />} />
 
-          {/* Login Page */}
-          <Route path="/login" element={<Login setToken={setToken} />} />
-        </Routes>
-      </main>
-    </BrowserRouter>
-  );
+                    {/* Talk Details Page */}
+                    <Route path="/talks/:id" element={<TalkDetails isAuthenticated={!!token} />} />
+
+                    {/* Itinerary Page */}
+                    <Route path="/itinerary" element={<Itinerary />} />
+
+                    {/* Login Page */}
+                    <Route path="/login" element={<Login setToken={setToken} />} />
+
+                    {/* Register Page */}
+                    <Route path="/register" element={<Register />} />
+                </Routes>
+            </main>
+        </BrowserRouter>
+    );
 }
 
 export default App;

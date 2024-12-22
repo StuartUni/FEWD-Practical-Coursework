@@ -1,147 +1,207 @@
 // import React, { useEffect, useState } from "react";
 // import { Link } from "react-router-dom";
+// import StarDisplay from "./StarDisplay"; // For average rating display
 
-// const Talks = ({ isAuthenticated }) => {
+// const Talks = () => {
 //     const [talks, setTalks] = useState([]);
 //     const [searchTerm, setSearchTerm] = useState("");
 //     const [session, setSession] = useState("");
 //     const [filteredTalks, setFilteredTalks] = useState([]);
 
-//     const calculateAverageRating = (ratings) => {
-//         if (!Array.isArray(ratings) || ratings.length === 0) return "No ratings yet";
-    
-//         // Extract only valid numeric ratings
-//         const validRatings = ratings
-//             .filter((r) => r && typeof r.rating === "number" && !isNaN(r.rating))
-//             .map((r) => r.rating);
-    
-//         if (validRatings.length === 0) return "No ratings yet";
-    
-//         const sum = validRatings.reduce((acc, rating) => acc + rating, 0);
-//         return (sum / validRatings.length).toFixed(1);
-//     };
-
-//     // Fetch talks from the API on component mount
+//     // Fetch talks from the API
 //     useEffect(() => {
 //         const fetchTalks = async () => {
 //             try {
 //                 const response = await fetch("http://localhost:3001/talks");
 //                 const data = await response.json();
-//                 console.log("Fetched Talks Data:", data); // Debugging API response
-
-//                 // Ensure the API response is an array
-//                 if (Array.isArray(data)) {
-//                     setTalks(data);
-//                     setFilteredTalks(data);
-//                 } else {
-//                     console.error("API did not return an array:", data);
-//                     setTalks([]);
-//                     setFilteredTalks([]);
-//                 }
+//                 setTalks(data);
+//                 setFilteredTalks(data);
 //             } catch (error) {
 //                 console.error("Failed to fetch talks:", error);
-//                 setTalks([]);
-//                 setFilteredTalks([]);
 //             }
 //         };
 
 //         fetchTalks();
 //     }, []);
 
-//     // Filter talks when search term or session changes
+//     // Filter talks by search term and session
 //     useEffect(() => {
 //         const filtered = talks.filter((talk) => {
-//             const matchesTitleOrSpeaker = talk.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//                                           talk.speaker?.toLowerCase().includes(searchTerm.toLowerCase());
+//             const matchesTitleOrSpeaker =
+//                 talk.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//                 talk.speaker.toLowerCase().includes(searchTerm.toLowerCase());
 //             const matchesSession = session === "" || talk.session === session;
 //             return matchesTitleOrSpeaker && matchesSession;
 //         });
-
 //         setFilteredTalks(filtered);
 //     }, [searchTerm, session, talks]);
 
 //     return (
+//         <div className="container">
+//             <h1 className="my-4">Talks</h1>
+
+//             {/* Search Input */}
+//             <div className="row mb-3">
+//                 <div className="col-md-6">
+//                     <input
+//                         type="text"
+//                         className="form-control"
+//                         placeholder="Search by title or speaker..."
+//                         value={searchTerm}
+//                         onChange={(e) => setSearchTerm(e.target.value)}
+//                     />
+//                 </div>
+//                 <div className="col-md-3">
+//                     <select
+//                         className="form-select"
+//                         onChange={(e) => setSession(e.target.value)}
+//                         value={session}
+//                     >
+//                         <option value="">All Sessions</option>
+//                         <option value="A">Session A</option>
+//                         <option value="B">Session B</option>
+//                         <option value="C">Session C</option>
+//                     </select>
+//                 </div>
+//             </div>
+
+//             {/* Talks List */}
+//             <div className="row">
+//                 {filteredTalks.length > 0 ? (
+//                     filteredTalks.map((talk) => (
+//                         <div className="col-md-4 mb-4" key={talk.id}>
+//                             <div className="card h-100">
+//                                 <div className="card-body">
+//                                     <h5 className="card-title">{talk.title}</h5>
+//                                     <p className="card-text">Speaker: {talk.speaker}</p>
+//                                     <p className="card-text">Time: {talk.time}</p>
+//                                     <div>
+//                                         <StarDisplay ratings={talk.ratings} />
+//                                     </div>
+//                                     <Link to={`/talks/${talk.id}`} className="btn btn-primary mt-3">
+//                                         View Details
+//                                     </Link>
+//                                 </div>
+//                             </div>
+//                         </div>
+//                     ))
+//                 ) : (
+//                     <p className="text-center">No talks found. Try adjusting your search or filters.</p>
+//                 )}
+//             </div>
+//         </div>
+//     );
+// };
+
+// export default Talks;
+
+// import React, { useEffect, useState } from "react";
+// import { Link } from "react-router-dom";
+// import StarDisplay from "./StarDisplay"; // For average rating display
+// import { ClipLoader } from "react-spinners"; // Import spinner
+
+// const Talks = () => {
+//     const [talks, setTalks] = useState([]);
+//     const [searchTerm, setSearchTerm] = useState("");
+//     const [session, setSession] = useState("");
+//     const [filteredTalks, setFilteredTalks] = useState([]);
+//     const [loading, setLoading] = useState(true); // State for loading spinner
+
+//     // Fetch talks from the API
+//     useEffect(() => {
+//         const fetchTalks = async () => {
+//             try {
+//                 const response = await fetch("http://localhost:3001/talks");
+//                 const data = await response.json();
+//                 setTalks(data);
+//                 setFilteredTalks(data);
+//             } catch (error) {
+//                 console.error("Failed to fetch talks:", error);
+//             } finally {
+//                 setLoading(false); // Stop the spinner after fetching
+//             }
+//         };
+
+//         fetchTalks();
+//     }, []);
+
+//     // Filter talks by search term and session
+//     useEffect(() => {
+//         const filtered = talks.filter((talk) => {
+//             const matchesTitleOrSpeaker =
+//                 talk.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//                 talk.speaker.toLowerCase().includes(searchTerm.toLowerCase());
+//             const matchesSession = session === "" || talk.session === session;
+//             return matchesTitleOrSpeaker && matchesSession;
+//         });
+//         setFilteredTalks(filtered);
+//     }, [searchTerm, session, talks]);
+
+//     // Show spinner while loading
+//     if (loading) {
+//         return (
+//             <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+//                 <ClipLoader size={50} color={"#007bff"} />
+//             </div>
+//         );
+//     }
+
+//     return (
 //         <div>
 //             <h1>Talks</h1>
-            
-//             {/* Search Input */}
+//             {/* Search and Filter */}
 //             <input
 //                 type="text"
 //                 placeholder="Search by title or speaker..."
 //                 value={searchTerm}
 //                 onChange={(e) => setSearchTerm(e.target.value)}
 //             />
-            
-//             {/* Session Filter */}
 //             <select onChange={(e) => setSession(e.target.value)} value={session}>
 //                 <option value="">All Sessions</option>
 //                 <option value="A">Session A</option>
 //                 <option value="B">Session B</option>
 //                 <option value="C">Session C</option>
 //             </select>
-            
+
 //             {/* Talks List */}
-//             <ul>
-//                 {filteredTalks.length > 0 ? (
-//                     filteredTalks.map((talk) => (
-//                         <li key={talk.id}>
-//                             <h2>
-//                                 <Link to={`/talks/${talk.id}`}>{talk.title}</Link>
-//                             </h2>
-//                             <p>Speaker: {talk.speaker}</p>
-//                             <p>Time: {talk.time}</p>
-//                             <p>Average Rating: {calculateAverageRating(talk.ratings)}</p>
-//                             {isAuthenticated ? (
-//                                 <div>
-//                                     <button>Rate Talk</button>
-//                                     <button>Comment</button>
-//                                 </div>
-//                             ) : (
-//                                 <p style={{ color: "gray" }}>
-//                                     Login to rate or comment on this talk.
-//                                 </p>
-//                             )}
-//                         </li>
-//                     ))
-//                 ) : (
-//                     <p>No talks found. Try adjusting your search or filters.</p>
-//                 )}
-//             </ul>
+//             <div className="row">
+//                 {filteredTalks.map((talk) => (
+//                     <div className="col-md-4 mb-4" key={talk.id}>
+//                         <div className="card h-100">
+//                             <div className="card-body">
+//                                 <h5 className="card-title">{talk.title}</h5>
+//                                 <p className="card-text">Speaker: {talk.speaker}</p>
+//                                 <p className="card-text">Time: {talk.time}</p>
+//                                 <StarDisplay ratings={talk.ratings} />
+//                                 <Link to={`/talks/${talk.id}`} className="btn btn-primary mt-3">
+//                                     View Details
+//                                 </Link>
+//                             </div>
+//                         </div>
+//                     </div>
+//                 ))}
+//             </div>
 //         </div>
 //     );
 // };
-
-
 
 // export default Talks;
 
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import StarDisplay from "./StarDisplay"; // For average rating display
+import { ClipLoader } from "react-spinners"; // Import spinner
 
-const Talks = ({ isAuthenticated }) => {
+const Talks = () => {
     const [talks, setTalks] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [session, setSession] = useState("");
     const [filteredTalks, setFilteredTalks] = useState([]);
+    const [loading, setLoading] = useState(true); // State for loading spinner
 
-    // Helper to calculate the average rating
-    const calculateAverageRating = (ratings) => {
-        if (!Array.isArray(ratings) || ratings.length === 0) return "No ratings yet";
-
-        // Extract only valid numeric ratings
-        const validRatings = ratings
-            .filter((r) => r && typeof r.rating === "number" && !isNaN(r.rating))
-            .map((r) => r.rating);
-
-        if (validRatings.length === 0) return "No ratings yet";
-
-        const sum = validRatings.reduce((acc, rating) => acc + rating, 0);
-        return (sum / validRatings.length).toFixed(1);
-    };
-
-    // Add a talk to the itinerary
+    // Function to add a talk to the itinerary
     const addToItinerary = (talk) => {
-        // Retrieve the existing itinerary from localStorage
+        // Retrieve existing itinerary from localStorage
         const itinerary = JSON.parse(localStorage.getItem("itinerary")) || [];
 
         // Check for conflicts (no overlapping talks at the same time)
@@ -158,94 +218,100 @@ const Talks = ({ isAuthenticated }) => {
         alert(`"${talk.title}" has been added to your itinerary!`);
     };
 
-    // Fetch talks from the API on component mount
+    // Fetch talks from the API
     useEffect(() => {
         const fetchTalks = async () => {
             try {
                 const response = await fetch("http://localhost:3001/talks");
                 const data = await response.json();
-                console.log("Fetched Talks Data:", data); // Debugging API response
-
-                // Ensure the API response is an array
-                if (Array.isArray(data)) {
-                    setTalks(data);
-                    setFilteredTalks(data);
-                } else {
-                    console.error("API did not return an array:", data);
-                    setTalks([]);
-                    setFilteredTalks([]);
-                }
+                setTalks(data);
+                setFilteredTalks(data);
             } catch (error) {
                 console.error("Failed to fetch talks:", error);
-                setTalks([]);
-                setFilteredTalks([]);
+            } finally {
+                setLoading(false); // Stop the spinner after fetching
             }
         };
 
         fetchTalks();
     }, []);
 
-    // Filter talks when search term or session changes
+    // Filter talks by search term and session
     useEffect(() => {
         const filtered = talks.filter((talk) => {
             const matchesTitleOrSpeaker =
-                talk.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                talk.speaker?.toLowerCase().includes(searchTerm.toLowerCase());
+                talk.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                talk.speaker.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesSession = session === "" || talk.session === session;
             return matchesTitleOrSpeaker && matchesSession;
         });
-
         setFilteredTalks(filtered);
     }, [searchTerm, session, talks]);
 
+    // Show spinner while loading
+    if (loading) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+                <ClipLoader size={50} color={"#007bff"} />
+            </div>
+        );
+    }
+
     return (
-        <div>
-            <h1>Talks</h1>
+        <div className="container">
+            <h1 className="my-4">Talks</h1>
 
-            {/* Search Input */}
-            <input
-                type="text"
-                placeholder="Search by title or speaker..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-            />
-
-            {/* Session Filter */}
-            <select onChange={(e) => setSession(e.target.value)} value={session}>
-                <option value="">All Sessions</option>
-                <option value="A">Session A</option>
-                <option value="B">Session B</option>
-                <option value="C">Session C</option>
-            </select>
+            {/* Search and Filter */}
+            <div className="row mb-3">
+                <div className="col-md-6">
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Search by title or speaker..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <div className="col-md-3">
+                    <select
+                        className="form-select"
+                        onChange={(e) => setSession(e.target.value)}
+                        value={session}
+                    >
+                        <option value="">All Sessions</option>
+                        <option value="A">Session A</option>
+                        <option value="B">Session B</option>
+                        <option value="C">Session C</option>
+                    </select>
+                </div>
+            </div>
 
             {/* Talks List */}
-            <ul>
-                {filteredTalks.length > 0 ? (
-                    filteredTalks.map((talk) => (
-                        <li key={talk.id}>
-                            <h2>
-                                <Link to={`/talks/${talk.id}`}>{talk.title}</Link>
-                            </h2>
-                            <p>Speaker: {talk.speaker}</p>
-                            <p>Time: {talk.time}</p>
-                            <p>Average Rating: {calculateAverageRating(talk.ratings)}</p>
-                            <button onClick={() => addToItinerary(talk)}>Add to Itinerary</button>
-                            {isAuthenticated ? (
+            <div className="row">
+                {filteredTalks.map((talk) => (
+                    <div className="col-md-4 mb-4" key={talk.id}>
+                        <div className="card h-100">
+                            <div className="card-body">
+                                <h5 className="card-title">{talk.title}</h5>
+                                <p className="card-text">Speaker: {talk.speaker}</p>
+                                <p className="card-text">Time: {talk.time}</p>
                                 <div>
-                                    <button>Rate Talk</button>
-                                    <button>Comment</button>
+                                    <StarDisplay ratings={talk.ratings} />
                                 </div>
-                            ) : (
-                                <p style={{ color: "gray" }}>
-                                    Login to rate or comment on this talk.
-                                </p>
-                            )}
-                        </li>
-                    ))
-                ) : (
-                    <p>No talks found. Try adjusting your search or filters.</p>
-                )}
-            </ul>
+                                <Link to={`/talks/${talk.id}`} className="btn btn-primary mt-3">
+                                    View Details
+                                </Link>
+                                <button
+                                    onClick={() => addToItinerary(talk)}
+                                    className="btn btn-secondary mt-2"
+                                >
+                                    Add to Itinerary
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
