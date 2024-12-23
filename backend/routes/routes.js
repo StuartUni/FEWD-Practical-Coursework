@@ -32,6 +32,12 @@ router.post("/talks/:id/rate", auth, controller.rateTalkById);
 
 router.post("/talks/:id/comment", auth, controller.addCommentToTalk);
 
+// Edit a comment (requires authentication)
+router.put("/talks/:id/comments/:commentId", auth, controller.editComment);
+
+// Delete a comment (requires authentication)
+router.delete("/talks/:id/comments/:commentId", auth, controller.deleteComment);
+
 // -------------------- Error Handling -------------------- //
 // Handle 404 errors
 router.use((req, res) => {

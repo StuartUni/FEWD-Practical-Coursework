@@ -1,3 +1,3 @@
 {"username":"newuser","email":"newuser@example.com","password":"$2b$10$zrcA4PXpAKHF578XxjjmGeLVRAA3Mek0Dw8Ds6GeLysKSswbKAgrq","createdAt":{"$$date":1734701672362},"_id":"WV50NNJJu2Jcxg6b"}
-{"username":"registertest","email":"rt@test.com","password":"$2b$10$rCXi0aVApxtCdtm7qUHjRupvH89jcNfXfQh5cAYjem3tWm.tkQlIu","createdAt":{"$$date":1734884106560},"_id":"pwoKDFd5ZEzN7grX"}
 {"username":"registertest2","email":"rt2@test.com","password":"$2b$10$1RMEnWYGJPyoum5Ljbsc9ef/03jHxJEgcrYSBmelAErhaJDbX/qEC","createdAt":{"$$date":1734898170701},"_id":"ZNmAV1C4JnjmCGC1"}
+{"username":"registertest","email":"rt@test.com","password":"$2b$10$rCXi0aVApxtCdtm7qUHjRupvH89jcNfXfQh5cAYjem3tWm.tkQlIu","createdAt":{"$$date":1734884106560},"_id":"pwoKDFd5ZEzN7grX"}

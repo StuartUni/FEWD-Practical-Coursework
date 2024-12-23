@@ -282,6 +282,91 @@ exports.addCommentToTalk = (req, res) => {
       });
 };
 
+exports.editComment = (req, res) => {
+  const { id: talkId, commentId } = req.params;
+  const { comment } = req.body;
+  const { username } = req.user;
+
+  if (!comment || comment.trim() === "") {
+      return res.status(400).json({ message: "Comment cannot be empty" });
+  }
+
+  const confDAO = require("../models/confModel");
+  const conf = new confDAO({ filename: "conf.db", autoload: true });
+
+  conf.getTalkById(talkId)
+      .then((talk) => {
+          if (!talk || talk.length === 0) {
+              return res.status(404).json({ message: "Talk not found" });
+          }
+
+          const existingComment = talk[0].comments.find((c) => c.id === commentId);
+
+          if (!existingComment || existingComment.username !== username) {
+              return res.status(403).json({ message: "Unauthorized to edit this comment" });
+          }
+
+          existingComment.comment = comment;
+
+          conf.conf.update(
+              { id: talkId },
+              { $set: { comments: talk[0].comments } },
+              {},
+              (err) => {
+                  if (err) {
+                      return res.status(500).json({ message: "Failed to edit comment" });
+                  }
+                  res.status(200).json(talk[0]);
+              }
+          );
+      })
+      .catch((err) => {
+          console.error(err);
+          res.status(500).json({ message: "Internal server error" });
+      });
+};
+
+exports.deleteComment = (req, res) => {
+  const { id: talkId, commentId } = req.params;
+  const { username } = req.user;
+
+  const confDAO = require("../models/confModel");
+  const conf = new confDAO({ filename: "conf.db", autoload: true });
+
+  conf.getTalkById(talkId)
+      .then((talk) => {
+          if (!talk || talk.length === 0) {
+              return res.status(404).json({ message: "Talk not found" });
+          }
+
+          const commentIndex = talk[0].comments.findIndex(
+              (c) => c.id === commentId && c.username === username
+          );
+
+          if (commentIndex === -1) {
+              return res.status(403).json({ message: "Unauthorized to delete this comment" });
+          }
+
+          talk[0].comments.splice(commentIndex, 1);
+
+          conf.conf.update(
+              { id: talkId },
+              { $set: { comments: talk[0].comments } },
+              {},
+              (err) => {
+                  if (err) {
+                      return res.status(500).json({ message: "Failed to delete comment" });
+                  }
+                  res.status(200).json(talk[0]);
+              }
+          );
+      })
+      .catch((err) => {
+          console.error(err);
+          res.status(500).json({ message: "Internal server error" });
+      });
+};
+
 exports.handlePosts = function (req, res) {
   let talkId = req.body.talkId;
   let newRating = req.body.rating;

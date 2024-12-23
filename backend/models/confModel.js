@@ -163,31 +163,126 @@ class Conf {
     });
   }
 
-  addCommentToTalk(id, userId, commentText) {
+//   addCommentToTalk(id, userId, commentText) {
+//     return new Promise((resolve, reject) => {
+//         this.conf.findOne({ id: id }, (err, talk) => {
+//             if (err || !talk) {
+//                 return reject("Talk not found or error fetching talk");
+//             }
+
+//             // Initialize comments array if it doesn't exist
+//             let comments = talk.comments || [];
+
+//             // Add new comment
+//             comments.push({ userId, comment: commentText, timestamp: new Date() });
+
+//             // Update the database with the new comments
+//             this.conf.update(
+//                 { id: id },
+//                 { $set: { comments: comments } },
+//                 {},
+//                 function (err, numAffected) {
+//                     if (err) {
+//                         reject("Failed to add comment");
+//                     } else {
+//                         console.log("Updated Comments:", comments);
+//                         resolve(comments);
+//                     }
+//                 }
+//             );
+//         });
+//     });
+// }
+
+
+
+addCommentToTalk(id, userId, commentText) {
+  return new Promise((resolve, reject) => {
+      this.conf.findOne({ id: id }, (err, talk) => {
+          if (err || !talk) {
+              return reject("Talk not found or error fetching talk");
+          }
+
+          // Initialize comments array if it doesn't exist
+          let comments = talk.comments || [];
+
+          // Add new comment with a unique ID
+          const newComment = {
+              id: new Date().getTime().toString(), // Unique ID based on timestamp
+              username: userId,
+              comment: commentText,
+              timestamp: new Date(),
+          };
+          comments.push(newComment);
+
+          // Update the database with the new comments
+          this.conf.update(
+              { id: id },
+              { $set: { comments: comments } },
+              {},
+              function (err, numAffected) {
+                  if (err) {
+                      reject("Failed to add comment");
+                  } else {
+                      console.log("Updated Comments:", comments);
+                      resolve(comments);
+                  }
+              }
+          );
+      });
+  });
+}
+
+  // Edit a comment
+  editComment(talkId, commentId, userId, updatedComment) {
     return new Promise((resolve, reject) => {
-        this.conf.findOne({ id: id }, (err, talk) => {
-            if (err || !talk) {
-                return reject("Talk not found or error fetching talk");
-            }
+        this.conf.findOne({ id: talkId }, (err, talk) => {
+            if (err || !talk) return reject("Talk not found");
 
-            // Initialize comments array if it doesn't exist
-            let comments = talk.comments || [];
+            const comments = talk.comments || [];
+            const commentIndex = comments.findIndex(
+                (c) => c.id === commentId && c.userId === userId
+            );
 
-            // Add new comment
-            comments.push({ userId, comment: commentText, timestamp: new Date() });
+            if (commentIndex === -1) return reject("Comment not found or unauthorized");
 
-            // Update the database with the new comments
+            comments[commentIndex].comment = updatedComment;
+
             this.conf.update(
-                { id: id },
-                { $set: { comments: comments } },
+                { id: talkId },
+                { $set: { comments } },
                 {},
-                function (err, numAffected) {
-                    if (err) {
-                        reject("Failed to add comment");
-                    } else {
-                        console.log("Updated Comments:", comments);
-                        resolve(comments);
-                    }
+                (err) => {
+                    if (err) return reject("Failed to edit comment");
+                    resolve(comments);
+                }
+            );
+        });
+    });
+}
+
+// Delete a comment
+deleteComment(talkId, commentId, userId) {
+    return new Promise((resolve, reject) => {
+        this.conf.findOne({ id: talkId }, (err, talk) => {
+            if (err || !talk) return reject("Talk not found");
+
+            const comments = talk.comments || [];
+            const commentIndex = comments.findIndex(
+                (c) => c.id === commentId && c.userId === userId
+            );
+
+            if (commentIndex === -1) return reject("Comment not found or unauthorized");
+
+            comments.splice(commentIndex, 1);
+
+            this.conf.update(
+                { id: talkId },
+                { $set: { comments } },
+                {},
+                (err) => {
+                    if (err) return reject("Failed to delete comment");
+                    resolve(comments);
                 }
             );
         });
@@ -314,3 +409,4 @@ rateTalkById(id, userId, newRating) {
 
 
 module.exports = Conf;
+

@@ -20,6 +20,7 @@ const Login = ({ setToken }) => {
             const data = await response.json();
             setToken(data.token);
             sessionStorage.setItem("token", data.token);
+            sessionStorage.setItem("username", data.username); // Store username
             navigate("/"); // Redirect to the home page after successful login
         } else {
             setError("Invalid username or password");
