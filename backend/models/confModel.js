@@ -163,36 +163,6 @@ class Conf {
     });
   }
 
-//   addCommentToTalk(id, userId, commentText) {
-//     return new Promise((resolve, reject) => {
-//         this.conf.findOne({ id: id }, (err, talk) => {
-//             if (err || !talk) {
-//                 return reject("Talk not found or error fetching talk");
-//             }
-
-//             // Initialize comments array if it doesn't exist
-//             let comments = talk.comments || [];
-
-//             // Add new comment
-//             comments.push({ userId, comment: commentText, timestamp: new Date() });
-
-//             // Update the database with the new comments
-//             this.conf.update(
-//                 { id: id },
-//                 { $set: { comments: comments } },
-//                 {},
-//                 function (err, numAffected) {
-//                     if (err) {
-//                         reject("Failed to add comment");
-//                     } else {
-//                         console.log("Updated Comments:", comments);
-//                         resolve(comments);
-//                     }
-//                 }
-//             );
-//         });
-//     });
-// }
 
 
 

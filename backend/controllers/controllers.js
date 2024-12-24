@@ -229,142 +229,269 @@ exports.rateTalkById = [
   },
 ];
 
+const { v4: uuidv4 } = require("uuid");
+
+// exports.addCommentToTalk = (req, res) => {
+//     const { id: talkId } = req.params; // Extract talk ID from request params
+//     const { comment } = req.body; // Extract comment from request body
+//     const { username } = req.user; // Extract username from decoded token in auth middleware
+
+//     // Load the conference model
+//     const confDAO = require("../models/confModel");
+//     const conf = new confDAO({ filename: "conf.db", autoload: true });
+
+//     // Validate the comment
+//     if (!comment || comment.trim() === "") {
+//         return res.status(400).json({ message: "Comment cannot be empty" });
+//     }
+
+//     // Fetch the talk by ID
+//     conf.getTalkById(talkId)
+//         .then((talk) => {
+//             if (!talk || talk.length === 0) {
+//                 return res.status(404).json({ message: "Talk not found" });
+//             }
+
+//             // Construct the new comment object with a unique ID
+//             const userComment = {
+//                 id: uuidv4(), // Generate a unique ID
+//                 username, // Use the username from the decoded token
+//                 comment,
+//                 timestamp: new Date(),
+//             };
+
+//             // Append the new comment to the existing comments
+//             const updatedComments = [...(talk[0].comments || []), userComment];
+
+//             // Update the talk's comments in the database
+//             conf.conf.update(
+//                 { id: talkId }, // Match the talk ID
+//                 { $set: { comments: updatedComments } }, // Update the comments field
+//                 {},
+//                 (err) => {
+//                     if (err) {
+//                         console.error("Error updating comments:", err);
+//                         return res.status(500).json({ message: "Failed to add comment" });
+//                     }
+
+//                     // Send back the updated talk with comments
+//                     res.status(200).json({ ...talk[0], comments: updatedComments });
+//                 }
+//             );
+//         })
+//         .catch((err) => {
+//             console.error("Error fetching talk:", err);
+//             res.status(500).json({ message: "Internal server error" });
+//         });
+// };
+
+// exports.editComment = (req, res) => {
+//   const { id: talkId, commentId } = req.params;
+//   const { comment } = req.body;
+//   const { username } = req.user;
+
+//   if (!comment || comment.trim() === "") {
+//       return res.status(400).json({ message: "Comment cannot be empty" });
+//   }
+
+//   const confDAO = require("../models/confModel");
+//   const conf = new confDAO({ filename: "conf.db", autoload: true });
+
+//   conf.getTalkById(talkId)
+//       .then((talk) => {
+//           if (!talk || talk.length === 0) {
+//               return res.status(404).json({ message: "Talk not found" });
+//           }
+
+//           const existingComment = talk[0].comments.find((c) => c.id === commentId);
+
+//           if (!existingComment || existingComment.username !== username) {
+//               return res.status(403).json({ message: "Unauthorized to edit this comment" });
+//           }
+
+//           existingComment.comment = comment;
+
+//           conf.conf.update(
+//               { id: talkId },
+//               { $set: { comments: talk[0].comments } },
+//               {},
+//               (err) => {
+//                   if (err) {
+//                       return res.status(500).json({ message: "Failed to edit comment" });
+//                   }
+//                   res.status(200).json(talk[0]);
+//               }
+//           );
+//       })
+//       .catch((err) => {
+//           console.error(err);
+//           res.status(500).json({ message: "Internal server error" });
+//       });
+// };
+
+// exports.deleteComment = (req, res) => {
+//   const { id: talkId, commentId } = req.params;
+//   const { username } = req.user;
+
+//   const confDAO = require("../models/confModel");
+//   const conf = new confDAO({ filename: "conf.db", autoload: true });
+
+//   conf.getTalkById(talkId)
+//       .then((talk) => {
+//           if (!talk || talk.length === 0) {
+//               return res.status(404).json({ message: "Talk not found" });
+//           }
+
+//           const commentIndex = talk[0].comments.findIndex(
+//               (c) => c.id === commentId && c.username === username
+//           );
+
+//           if (commentIndex === -1) {
+//               return res.status(403).json({ message: "Unauthorized to delete this comment" });
+//           }
+
+//           talk[0].comments.splice(commentIndex, 1);
+
+//           conf.conf.update(
+//               { id: talkId },
+//               { $set: { comments: talk[0].comments } },
+//               {},
+//               (err) => {
+//                   if (err) {
+//                       return res.status(500).json({ message: "Failed to delete comment" });
+//                   }
+//                   res.status(200).json(talk[0]);
+//               }
+//           );
+//       })
+//       .catch((err) => {
+//           console.error(err);
+//           res.status(500).json({ message: "Internal server error" });
+//       });
+// };
+
+// -------- Add Comment --------
 exports.addCommentToTalk = (req, res) => {
-  const { id: talkId } = req.params; // Extract talk ID from request params
-  const { comment } = req.body; // Extract comment from request body
-  const { username } = req.user; // Extract username from decoded token in auth middleware
+    const { id: talkId } = req.params;
+    const { comment } = req.body;
+    const { username } = req.user;
 
-  // Load the conference model
-  const confDAO = require("../models/confModel");
-  const conf = new confDAO({ filename: "conf.db", autoload: true });
+    if (!comment || comment.trim() === "") {
+        return res.status(400).json({ message: "Comment cannot be empty" });
+    }
 
-  // Validate the comment
-  if (!comment || comment.trim() === "") {
-      return res.status(400).json({ message: "Comment cannot be empty" });
-  }
+    conf.getTalkById(talkId)
+        .then((talk) => {
+            if (!talk || talk.length === 0) {
+                return res.status(404).json({ message: "Talk not found" });
+            }
 
-  // Fetch the talk by ID
-  conf.getTalkById(talkId)
-      .then((talk) => {
-          if (!talk || talk.length === 0) {
-              return res.status(404).json({ message: "Talk not found" });
-          }
+            const userComment = {
+                id: uuidv4(),
+                username,
+                comment,
+                timestamp: new Date(),
+            };
 
-          // Construct the new comment object
-          const userComment = {
-              username, // Use the username from the decoded token
-              comment,
-              timestamp: new Date(),
-          };
+            const updatedComments = [...(talk[0].comments || []), userComment];
 
-          // Append the new comment to the existing comments
-          const updatedComments = [...(talk[0].comments || []), userComment];
-
-          // Update the talk's comments in the database
-          conf.conf.update(
-              { id: talkId }, // Match the talk ID
-              { $set: { comments: updatedComments } }, // Update the comments field
-              {},
-              (err) => {
-                  if (err) {
-                      console.error("Error updating comments:", err);
-                      return res.status(500).json({ message: "Failed to add comment" });
-                  }
-
-                  // Send back the updated talk with comments
-                  res.status(200).json({ ...talk[0], comments: updatedComments });
-              }
-          );
-      })
-      .catch((err) => {
-          console.error("Error fetching talk:", err);
-          res.status(500).json({ message: "Internal server error" });
-      });
+            conf.conf.update(
+                { id: talkId },
+                { $set: { comments: updatedComments } },
+                {},
+                (err) => {
+                    if (err) {
+                        return res.status(500).json({ message: "Failed to add comment" });
+                    }
+                    res.status(200).json({ ...talk[0], comments: updatedComments });
+                }
+            );
+        })
+        .catch((err) => {
+            console.error("Error fetching talk:", err);
+            res.status(500).json({ message: "Internal server error" });
+        });
 };
 
+// -------- Edit Comment --------
 exports.editComment = (req, res) => {
-  const { id: talkId, commentId } = req.params;
-  const { comment } = req.body;
-  const { username } = req.user;
+    const { id: talkId, commentId } = req.params;
+    const { comment } = req.body;
+    const { username } = req.user;
 
-  if (!comment || comment.trim() === "") {
-      return res.status(400).json({ message: "Comment cannot be empty" });
-  }
+    if (!comment || comment.trim() === "") {
+        return res.status(400).json({ message: "Comment cannot be empty" });
+    }
 
-  const confDAO = require("../models/confModel");
-  const conf = new confDAO({ filename: "conf.db", autoload: true });
+    conf.getTalkById(talkId)
+        .then((talk) => {
+            if (!talk || talk.length === 0) {
+                return res.status(404).json({ message: "Talk not found" });
+            }
 
-  conf.getTalkById(talkId)
-      .then((talk) => {
-          if (!talk || talk.length === 0) {
-              return res.status(404).json({ message: "Talk not found" });
-          }
+            const existingComment = talk[0].comments.find((c) => c.id === commentId);
 
-          const existingComment = talk[0].comments.find((c) => c.id === commentId);
+            if (!existingComment || existingComment.username !== username) {
+                return res.status(403).json({ message: "Unauthorized to edit this comment" });
+            }
 
-          if (!existingComment || existingComment.username !== username) {
-              return res.status(403).json({ message: "Unauthorized to edit this comment" });
-          }
+            existingComment.comment = comment;
 
-          existingComment.comment = comment;
-
-          conf.conf.update(
-              { id: talkId },
-              { $set: { comments: talk[0].comments } },
-              {},
-              (err) => {
-                  if (err) {
-                      return res.status(500).json({ message: "Failed to edit comment" });
-                  }
-                  res.status(200).json(talk[0]);
-              }
-          );
-      })
-      .catch((err) => {
-          console.error(err);
-          res.status(500).json({ message: "Internal server error" });
-      });
+            conf.conf.update(
+                { id: talkId },
+                { $set: { comments: talk[0].comments } },
+                {},
+                (err) => {
+                    if (err) {
+                        return res.status(500).json({ message: "Failed to edit comment" });
+                    }
+                    res.status(200).json({ ...talk[0] });
+                }
+            );
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({ message: "Internal server error" });
+        });
 };
 
+// -------- Delete Comment --------
 exports.deleteComment = (req, res) => {
-  const { id: talkId, commentId } = req.params;
-  const { username } = req.user;
+    const { id: talkId, commentId } = req.params;
+    const { username } = req.user;
 
-  const confDAO = require("../models/confModel");
-  const conf = new confDAO({ filename: "conf.db", autoload: true });
+    conf.getTalkById(talkId)
+        .then((talk) => {
+            if (!talk || talk.length === 0) {
+                return res.status(404).json({ message: "Talk not found" });
+            }
 
-  conf.getTalkById(talkId)
-      .then((talk) => {
-          if (!talk || talk.length === 0) {
-              return res.status(404).json({ message: "Talk not found" });
-          }
+            const commentIndex = talk[0].comments.findIndex(
+                (c) => c.id === commentId && c.username === username
+            );
 
-          const commentIndex = talk[0].comments.findIndex(
-              (c) => c.id === commentId && c.username === username
-          );
+            if (commentIndex === -1) {
+                return res.status(403).json({ message: "Unauthorized to delete this comment" });
+            }
 
-          if (commentIndex === -1) {
-              return res.status(403).json({ message: "Unauthorized to delete this comment" });
-          }
+            talk[0].comments.splice(commentIndex, 1);
 
-          talk[0].comments.splice(commentIndex, 1);
-
-          conf.conf.update(
-              { id: talkId },
-              { $set: { comments: talk[0].comments } },
-              {},
-              (err) => {
-                  if (err) {
-                      return res.status(500).json({ message: "Failed to delete comment" });
-                  }
-                  res.status(200).json(talk[0]);
-              }
-          );
-      })
-      .catch((err) => {
-          console.error(err);
-          res.status(500).json({ message: "Internal server error" });
-      });
+            conf.conf.update(
+                { id: talkId },
+                { $set: { comments: talk[0].comments } },
+                {},
+                (err) => {
+                    if (err) {
+                        return res.status(500).json({ message: "Failed to delete comment" });
+                    }
+                    res.status(200).json({ ...talk[0] });
+                }
+            );
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({ message: "Internal server error" });
+        });
 };
 
 exports.handlePosts = function (req, res) {

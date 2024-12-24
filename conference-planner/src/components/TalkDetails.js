@@ -18,6 +18,7 @@
 //             try {
 //                 const response = await fetch(`http://localhost:3001/talks/${id}`);
 //                 const data = await response.json();
+//                 console.log("Fetched Talk Details:", data); // Debugging response
 //                 setTalk(data);
 //             } catch (err) {
 //                 setError("Failed to fetch talk details.");
@@ -126,6 +127,8 @@
 //     if (error) return <p>{error}</p>;
 //     if (!talk) return <p>Loading...</p>;
 
+//     const currentUsername = sessionStorage.getItem("username");
+
 //     return (
 //         <div>
 //             <button onClick={() => navigate("/talks")} style={{ marginBottom: "20px" }}>
@@ -137,58 +140,73 @@
 //             <p><strong>Average Rating:</strong> <StarDisplay ratings={talk.ratings} /></p>
 
 //             <h2>Comments</h2>
-//             {talk.comments && talk.comments.length > 0 ? (
-//                 <ul>
-//                     {talk.comments.map((c) => (
-//                         <li key={c.id}>
-//                             {editingCommentId === c.id ? (
-//                                 <div>
-//                                     <textarea
-//                                         value={editComment}
-//                                         onChange={(e) => setEditComment(e.target.value)}
-//                                     />
-//                                     <button onClick={handleEditComment}>Save</button>
-//                                     <button onClick={() => setEditingCommentId(null)}>Cancel</button>
-//                                 </div>
-//                             ) : (
-//                                 <div>
-//                                     <p><strong>{c.username}:</strong> {c.comment}</p>
-//                                     <em>{new Date(c.timestamp).toLocaleString()}</em>
-//                                     {c.username === sessionStorage.getItem("username") && (
-//                                         <div>
-//                                             <button onClick={() => {
-//                                                 setEditingCommentId(c.id);
-//                                                 setEditComment(c.comment);
-//                                             }}>Edit</button>
-//                                             <button onClick={() => handleDeleteComment(c.id)}>Delete</button>
-//                                         </div>
-//                                     )}
-//                                 </div>
-//                             )}
-//                         </li>
-//                     ))}
-//                 </ul>
-//             ) : (
-//                 <p>No comments yet.</p>
-//             )}
-
-//             {isAuthenticated && (
-//                 <div>
-//                     <form onSubmit={handleCommentSubmit}>
-//                         <textarea
-//                             value={comment}
-//                             onChange={(e) => setComment(e.target.value)}
-//                             placeholder="Add your comment..."
-//                             required
-//                         />
-//                         <button type="submit">Submit Comment</button>
-//                     </form>
-
-//                     <h3>Rate this Talk</h3>
-//                     <StarRating totalStars={5} onRate={handleRatingSubmit} />
+// <div className="comments-section">
+//     {talk.comments && talk.comments.length > 0 ? (
+//         talk.comments.map((c) => (
+//             <div className="comment-card" key={c.id || c.timestamp}>
+//                 <div className="comment-header">
+//                     <strong>{c.username}</strong>
+//                     <span>{new Date(c.timestamp).toLocaleString()}</span>
 //                 </div>
-//             )}
-//             {message && <p style={{ color: "green" }}>{message}</p>}
+//                 {editingCommentId === c.id ? (
+//                     <div>
+//                         <textarea
+//                             value={editComment}
+//                             onChange={(e) => setEditComment(e.target.value)}
+//                             className="edit-textarea"
+//                         />
+//                         <button className="edit-btn" onClick={handleEditComment}>Save</button>
+//                         <button className="cancel-btn" onClick={() => setEditingCommentId(null)}>Cancel</button>
+//                     </div>
+//                 ) : (
+//                     <div className="comment-body">
+//                         <p>{c.comment}</p>
+//                         {c.username === currentUsername && (
+//                             <div className="comment-actions">
+//                                 <button
+//                                     className="edit-btn"
+//                                     onClick={() => {
+//                                         setEditingCommentId(c.id);
+//                                         setEditComment(c.comment);
+//                                     }}
+//                                 >
+//                                     Edit
+//                                 </button>
+//                                 <button
+//                                     className="delete-btn"
+//                                     onClick={() => handleDeleteComment(c.id)}
+//                                 >
+//                                     Delete
+//                                 </button>
+//                             </div>
+//                         )}
+//                     </div>
+//                 )}
+//             </div>
+//         ))
+//     ) : (
+//         <p>No comments yet.</p>
+//     )}
+// </div>
+
+// {isAuthenticated && (
+//     <div className="add-comment-section">
+//         <form onSubmit={handleCommentSubmit}>
+//             <textarea
+//                 value={comment}
+//                 onChange={(e) => setComment(e.target.value)}
+//                 placeholder="Add your comment..."
+//                 required
+//                 className="add-comment-textarea"
+//             />
+//             <button type="submit" className="submit-btn">Submit Comment</button>
+//         </form>
+
+//         <h3>Rate this Talk</h3>
+//         <StarRating totalStars={5} onRate={handleRatingSubmit} />
+//     </div>
+// )}
+// {message && <p style={{ color: "green" }}>{message}</p>}
 //         </div>
 //     );
 // };
@@ -210,19 +228,20 @@ const TalkDetails = ({ isAuthenticated }) => {
     const [message, setMessage] = useState("");
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetchTalkDetails = async () => {
-            try {
-                const response = await fetch(`http://localhost:3001/talks/${id}`);
-                const data = await response.json();
-                console.log("Fetched Talk Details:", data); // Debugging response
-                setTalk(data);
-            } catch (err) {
-                setError("Failed to fetch talk details.");
-                console.error(err);
-            }
-        };
+    // Fetch talk details
+    const fetchTalkDetails = async () => {
+        try {
+            const response = await fetch(`http://localhost:3001/talks/${id}`);
+            const data = await response.json();
+            console.log("Fetched Talk Details:", data); // Debugging response
+            setTalk(data);
+        } catch (err) {
+            setError("Failed to fetch talk details.");
+            console.error(err);
+        }
+    };
 
+    useEffect(() => {
         fetchTalkDetails();
     }, [id]);
 
@@ -244,8 +263,7 @@ const TalkDetails = ({ isAuthenticated }) => {
             });
 
             if (response.ok) {
-                const updatedTalk = await response.json();
-                setTalk(updatedTalk);
+                fetchTalkDetails(); // Refetch updated talk details
                 setMessage("Rating submitted successfully!");
             } else {
                 setMessage("Failed to submit rating.");
@@ -268,9 +286,8 @@ const TalkDetails = ({ isAuthenticated }) => {
                 body: JSON.stringify({ comment }),
             });
             if (response.ok) {
-                const updatedTalk = await response.json();
-                setTalk(updatedTalk);
-                setComment("");
+                fetchTalkDetails(); // Refetch updated talk details
+                setComment(""); // Clear input field
             } else {
                 console.error("Failed to submit comment");
             }
@@ -291,10 +308,9 @@ const TalkDetails = ({ isAuthenticated }) => {
                 body: JSON.stringify({ comment: editComment }),
             });
             if (response.ok) {
-                const updatedTalk = await response.json();
-                setTalk(updatedTalk);
-                setEditingCommentId(null);
-                setEditComment("");
+                fetchTalkDetails(); // Refetch updated talk details
+                setEditingCommentId(null); // Exit editing mode
+                setEditComment(""); // Clear edit input
             } else {
                 setMessage("Failed to edit comment.");
             }
@@ -311,8 +327,7 @@ const TalkDetails = ({ isAuthenticated }) => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (response.ok) {
-                const updatedTalk = await response.json();
-                setTalk(updatedTalk);
+                fetchTalkDetails(); // Refetch updated talk details
             } else {
                 setMessage("Failed to delete comment.");
             }
@@ -337,73 +352,73 @@ const TalkDetails = ({ isAuthenticated }) => {
             <p><strong>Average Rating:</strong> <StarDisplay ratings={talk.ratings} /></p>
 
             <h2>Comments</h2>
-<div className="comments-section">
-    {talk.comments && talk.comments.length > 0 ? (
-        talk.comments.map((c) => (
-            <div className="comment-card" key={c.id || c.timestamp}>
-                <div className="comment-header">
-                    <strong>{c.username}</strong>
-                    <span>{new Date(c.timestamp).toLocaleString()}</span>
-                </div>
-                {editingCommentId === c.id ? (
-                    <div>
-                        <textarea
-                            value={editComment}
-                            onChange={(e) => setEditComment(e.target.value)}
-                            className="edit-textarea"
-                        />
-                        <button className="edit-btn" onClick={handleEditComment}>Save</button>
-                        <button className="cancel-btn" onClick={() => setEditingCommentId(null)}>Cancel</button>
-                    </div>
-                ) : (
-                    <div className="comment-body">
-                        <p>{c.comment}</p>
-                        {c.username === currentUsername && (
-                            <div className="comment-actions">
-                                <button
-                                    className="edit-btn"
-                                    onClick={() => {
-                                        setEditingCommentId(c.id);
-                                        setEditComment(c.comment);
-                                    }}
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    className="delete-btn"
-                                    onClick={() => handleDeleteComment(c.id)}
-                                >
-                                    Delete
-                                </button>
+            <div className="comments-section">
+                {talk.comments && talk.comments.length > 0 ? (
+                    talk.comments.map((c) => (
+                        <div className="comment-card" key={c.id || c.timestamp}>
+                            <div className="comment-header">
+                                <strong>{c.username}</strong>
+                                <span>{new Date(c.timestamp).toLocaleString()}</span>
                             </div>
-                        )}
-                    </div>
+                            {editingCommentId === c.id ? (
+                                <div>
+                                    <textarea
+                                        value={editComment}
+                                        onChange={(e) => setEditComment(e.target.value)}
+                                        className="edit-textarea"
+                                    />
+                                    <button className="edit-btn" onClick={handleEditComment}>Save</button>
+                                    <button className="cancel-btn" onClick={() => setEditingCommentId(null)}>Cancel</button>
+                                </div>
+                            ) : (
+                                <div className="comment-body">
+                                    <p>{c.comment}</p>
+                                    {c.username === currentUsername && (
+                                        <div className="comment-actions">
+                                            <button
+                                                className="edit-btn"
+                                                onClick={() => {
+                                                    setEditingCommentId(c.id);
+                                                    setEditComment(c.comment);
+                                                }}
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                className="delete-btn"
+                                                onClick={() => handleDeleteComment(c.id)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    ))
+                ) : (
+                    <p>No comments yet.</p>
                 )}
             </div>
-        ))
-    ) : (
-        <p>No comments yet.</p>
-    )}
-</div>
 
-{isAuthenticated && (
-    <div className="add-comment-section">
-        <form onSubmit={handleCommentSubmit}>
-            <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Add your comment..."
-                required
-                className="add-comment-textarea"
-            />
-            <button type="submit" className="submit-btn">Submit Comment</button>
-        </form>
+            {isAuthenticated && (
+                <div className="add-comment-section">
+                    <form onSubmit={handleCommentSubmit}>
+                        <textarea
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            placeholder="Add your comment..."
+                            required
+                            className="add-comment-textarea"
+                        />
+                        <button type="submit" className="submit-btn">Submit Comment</button>
+                    </form>
 
-        <h3>Rate this Talk</h3>
-        <StarRating totalStars={5} onRate={handleRatingSubmit} />
-    </div>
-)}
-{message && <p style={{ color: "green" }}>{message}</p>}
+                    <h3>Rate this Talk</h3>
+                    <StarRating totalStars={5} onRate={handleRatingSubmit} />
+                </div>
+            )}
+            {message && <p style={{ color: "green" }}>{message}</p>}
         </div>
     );
 };
