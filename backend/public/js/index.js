@@ -1,5 +1,7 @@
 console.log("in script");
 
+const BASE_URL = "https://fewd-practical-coursework.onrender.com";
+
 async function registeruser(e) {
     
     e.preventDefault();
@@ -24,7 +26,7 @@ async function registeruser(e) {
         },
         body: JSON.stringify(newuser)
     };
-    await fetch("/register", settings);
+    await fetch(`${BASE_URL}/register`, settings);
     hidereg();
 };
 
@@ -54,7 +56,7 @@ async function loginuser(e) {
     };
     hidelogin();
 
-    let response = await fetch("/login", settings);
+    let response = await fetch(`${BASE_URL}/login`, settings);
     let content = await response.json();
     return content;
 };
@@ -77,7 +79,7 @@ async function getAppData(){
             'Authorization': token
         },
     };
-    let response = await fetch("/appData", settings);
+    let response = await fetch(`${BASE_URL}/appData`, settings);
     if (response.status == 401) {
         return "You are not authorised to view this data";
     } else {

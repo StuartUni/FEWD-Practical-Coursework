@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import StarDisplay from "./StarDisplay"; 
 import { ClipLoader } from "react-spinners"; 
+import { BASE_URL } from "../config";
+
 // Talks component
 const Talks = () => {
     const [talks, setTalks] = useState([]);
@@ -34,7 +36,7 @@ const Talks = () => {
     useEffect(() => {
         const fetchTalks = async () => {
             try {
-                const response = await fetch("http://localhost:3001/talks");
+                const response = await fetch(`${BASE_URL}/talks`);
                 const data = await response.json();
                 setTalks(data);
                 setFilteredTalks(data);

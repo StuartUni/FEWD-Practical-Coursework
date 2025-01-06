@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
+import { BASE_URL } from "../config";
+
 // Register component
 const Register = () => {
     const [username, setUsername] = useState("");
@@ -26,7 +28,7 @@ const Register = () => {
         setError(""); 
         // Send the registration request
         try {
-            const response = await fetch("http://localhost:3001/register", {
+            const response = await fetch(`${BASE_URL}/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, email, password }),

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../config"; 
+
 // Login component
 const Login = ({ setToken }) => {
     const [username, setUsername] = useState("");
@@ -10,7 +12,7 @@ const Login = ({ setToken }) => {
     const handleLogin = async (e) => {
         e.preventDefault();
         // Send the login request
-        const response = await fetch("http://localhost:3001/login", {
+        const response = await fetch(`${BASE_URL}/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password }),

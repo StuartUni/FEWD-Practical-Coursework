@@ -1,15 +1,16 @@
+// Load environment variables
+require("dotenv").config();
 // Conference model imported to interact with the database
 const confDAO = require("../models/confModel");
-const conf = new confDAO({ filename: "conf.db", autoload: true });
+const conf = new confDAO({ filename: process.env.CONF_FILE_PATH, autoload: true });
 // Necessary libraries imported
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const users = require("../models/users");
 // Middleware to authenticate user
 const auth = require("../middleware/auth"); 
 // Datastore to store user data
 const Datastore = require("gray-nedb");
-const userDB = new Datastore({ filename: "users.db", autoload: true });
+const userDB = new Datastore({ filename: process.env.DATABASE_FILE_PATH, autoload: true });
 
 // Regular expression to validate email
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -90,10 +91,14 @@ exports.loginUser = (req, res) => {
             return res.status(400).json({ message: "Invalid username or password." });
         }
 
-        // Generate a JWT token
-        const token = jwt.sign({ id: user._id, username: user.username }, "F6v!pB#2R%wJxQ8Lz9o@aT*", {
-            expiresIn: "1h",
-        });
+    // Generate a JWT token
+    const token = jwt.sign(
+        { id: user._id, username: user.username },
+        process.env.JWT_SECRET, 
+        {
+          expiresIn: "1h",
+        }
+      );
 
         res.status(200).json({ token, username: user.username });
     });

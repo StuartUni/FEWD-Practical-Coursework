@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import StarRating from "./StarRating";
 import StarDisplay from "./StarDisplay"; 
+import { BASE_URL } from "../config";
+
 // TalkDetails component
 const TalkDetails = ({ isAuthenticated }) => {
     const { id } = useParams();
@@ -16,9 +18,8 @@ const TalkDetails = ({ isAuthenticated }) => {
     // Fetch the talk details
     const fetchTalkDetails = async () => {
         try {
-            const response = await fetch(`http://localhost:3001/talks/${id}`);
+            const response = await fetch(`${BASE_URL}/talks/${id}`);
             const data = await response.json();
-            console.log("Fetched Talk Details:", data); 
             setTalk(data);
         } catch (err) {
             setError("Failed to fetch talk details.");
@@ -38,7 +39,7 @@ const TalkDetails = ({ isAuthenticated }) => {
         }
         // Send the rating request
         try {
-            const response = await fetch(`http://localhost:3001/talks/${id}/rate`, {
+            const response = await fetch(`${BASE_URL}/talks/${id}/rate`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -62,7 +63,7 @@ const TalkDetails = ({ isAuthenticated }) => {
         e.preventDefault();
         const token = sessionStorage.getItem("token");
         try {
-            const response = await fetch(`http://localhost:3001/talks/${id}/comment`, {
+            const response = await fetch(`${BASE_URL}/talks/${id}/comment`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -84,7 +85,7 @@ const TalkDetails = ({ isAuthenticated }) => {
     const handleEditComment = async () => {
         const token = sessionStorage.getItem("token");
         try {
-            const response = await fetch(`http://localhost:3001/talks/${id}/comments/${editingCommentId}`, {
+            const response = await fetch(`${BASE_URL}/talks/${id}/comments/${editingCommentId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -107,7 +108,7 @@ const TalkDetails = ({ isAuthenticated }) => {
     const handleDeleteComment = async (commentId) => {
         const token = sessionStorage.getItem("token");
         try {
-            const response = await fetch(`http://localhost:3001/talks/${id}/comments/${commentId}`, {
+            const response = await fetch(`${BASE_URL}/talks/${id}/comments/${commentId}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });

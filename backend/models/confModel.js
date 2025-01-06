@@ -1,14 +1,10 @@
+require("dotenv").config();
 const nedb = require("gray-nedb");
 
 class Conf {
-  constructor(confFilePath) {
-    console.log(confFilePath);
-    if (confFilePath) {
-      this.conf = new nedb(confFilePath);
-      confFilePath;
-    } else {
-      this.conf = new nedb();
-    }
+  constructor(confFilePath = process.env.CONF_FILE_PATH) {
+    console.log(`Using conference file path: ${confFilePath}`);
+    this.conf = new nedb({ filename: confFilePath, autoload: true });
   }
   init() {
 
