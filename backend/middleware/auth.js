@@ -9,7 +9,7 @@ module.exports = (req, res, next) => {
 
     try {
         // Verify token
-        const decoded = jwt.verify(token.split(" ")[1], "jwt_secret"); 
+        const decoded = jwt.verify(token.split(" ")[1], "F6v!pB#2R%wJxQ8Lz9o@aT*"); 
         req.user = decoded; 
         next(); 
     } catch (err) {

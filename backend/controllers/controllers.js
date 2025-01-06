@@ -91,7 +91,7 @@ exports.loginUser = (req, res) => {
         }
 
         // Generate a JWT token
-        const token = jwt.sign({ id: user._id, username: user.username }, "your_jwt_secret", {
+        const token = jwt.sign({ id: user._id, username: user.username }, "F6v!pB#2R%wJxQ8Lz9o@aT*", {
             expiresIn: "1h",
         });
 
