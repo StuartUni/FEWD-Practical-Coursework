@@ -8,6 +8,8 @@ const conf = new confDAO({ filename: process.env.CONF_FILE_PATH, autoload: true 
 // Initialize the database
 conf.init();
 
+console.log("CONF_FILE_PATH:", process.env.CONF_FILE_PATH);
+
 const app = express();
 
 // Middleware
