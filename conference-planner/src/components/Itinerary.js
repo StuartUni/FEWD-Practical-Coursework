@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
-
+// Manage the user's itinerary
 const Itinerary = () => {
     const [itinerary, setItinerary] = useState([]);
-
+    // Load the itinerary from localStorage
     useEffect(() => {
-        // Load the itinerary from localStorage
+        
         const savedItinerary = JSON.parse(localStorage.getItem("itinerary")) || [];
         setItinerary(savedItinerary);
     }, []);
-
+    // Remove a talk from the itinerary
     const removeFromItinerary = (talkId) => {
-        // Remove the talk by its ID
+        
         const updatedItinerary = itinerary.filter((talk) => talk.id !== talkId);
         setItinerary(updatedItinerary);
         localStorage.setItem("itinerary", JSON.stringify(updatedItinerary));

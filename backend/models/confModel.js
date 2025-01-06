@@ -165,7 +165,7 @@ class Conf {
 
 
 
-
+// Add comment to a talk
 addCommentToTalk(id, userId, commentText) {
   return new Promise((resolve, reject) => {
       this.conf.findOne({ id: id }, (err, talk) => {
@@ -173,19 +173,19 @@ addCommentToTalk(id, userId, commentText) {
               return reject("Talk not found or error fetching talk");
           }
 
-          // Initialize comments array if it doesn't exist
+          // Get existing comments or initialize an empty array
           let comments = talk.comments || [];
 
-          // Add new comment with a unique ID
+          // Add new comment
           const newComment = {
-              id: new Date().getTime().toString(), // Unique ID based on timestamp
+              id: new Date().getTime().toString(), 
               username: userId,
               comment: commentText,
               timestamp: new Date(),
           };
           comments.push(newComment);
 
-          // Update the database with the new comments
+          // Update comments in the database
           this.conf.update(
               { id: id },
               { $set: { comments: comments } },
@@ -203,21 +203,21 @@ addCommentToTalk(id, userId, commentText) {
   });
 }
 
-  // Edit a comment
+  // Edit comment
   editComment(talkId, commentId, userId, updatedComment) {
     return new Promise((resolve, reject) => {
         this.conf.findOne({ id: talkId }, (err, talk) => {
             if (err || !talk) return reject("Talk not found");
-
+            // Get existing comments or initialize an empty array
             const comments = talk.comments || [];
             const commentIndex = comments.findIndex(
                 (c) => c.id === commentId && c.userId === userId
             );
-
+            // Check if comment exists and user is authorized to edit
             if (commentIndex === -1) return reject("Comment not found or unauthorized");
-
+            
             comments[commentIndex].comment = updatedComment;
-
+            // Update comments in the database
             this.conf.update(
                 { id: talkId },
                 { $set: { comments } },
@@ -231,21 +231,21 @@ addCommentToTalk(id, userId, commentText) {
     });
 }
 
-// Delete a comment
+// Delete comment
 deleteComment(talkId, commentId, userId) {
     return new Promise((resolve, reject) => {
         this.conf.findOne({ id: talkId }, (err, talk) => {
             if (err || !talk) return reject("Talk not found");
-
+            // Get existing comments or initialize an empty array
             const comments = talk.comments || [];
             const commentIndex = comments.findIndex(
                 (c) => c.id === commentId && c.userId === userId
             );
-
+            // Check if comment exists and user is authorized to delete
             if (commentIndex === -1) return reject("Comment not found or unauthorized");
-
+            // Remove comment
             comments.splice(commentIndex, 1);
-
+            // Update comments in the database
             this.conf.update(
                 { id: talkId },
                 { $set: { comments } },
@@ -259,7 +259,7 @@ deleteComment(talkId, commentId, userId) {
     });
 }
 
-
+ // Get all comments for a talk
   getAllEntries() {
     return new Promise((resolve, reject) => {
       this.conf.find({}, function (err, entries) {
@@ -309,7 +309,7 @@ deleteComment(talkId, commentId, userId) {
       });
     });
   }
-
+  // Get talk by id
   getTalkById(id) {
     return new Promise((resolve, reject) => {
       this.conf.find({id:id} , function (err, entries) {
@@ -324,28 +324,28 @@ deleteComment(talkId, commentId, userId) {
    }
 
 
-
+// Rate talk by id  
 rateTalkById(id, userId, newRating) {
   return new Promise((resolve, reject) => {
       this.conf.findOne({ id: id }, (err, talk) => {
           if (err || !talk) {
               return reject("Talk not found or error fetching talk");
           }
-
+          // Get existing ratings or initialize an empty array
           let ratings = talk.ratings || [];
 
-          // Ensure the userId has one rating
+          // Check if user has already rated the talk
           const existingIndex = ratings.findIndex((r) => r.userId === userId);
-
+          // Update rating if user has already rated, else add new rating
           if (existingIndex > -1) {
-              // Update existing user's rating
+              
               ratings[existingIndex].rating = Number(newRating);
           } else {
-              // Add a new user rating
+              
               ratings.push({ userId: userId, rating: Number(newRating) });
           }
 
-          // Update the database
+          // Update ratings in the database
           this.conf.update(
               { id: id },
               { $set: { ratings: ratings } },
@@ -359,7 +359,7 @@ rateTalkById(id, userId, newRating) {
       });
   });
 }
-
+  // Rate Talk
   rateTalk(talkId,newRating){
     let id=String(talkId)
     let rating=Number(newRating)
@@ -377,6 +377,6 @@ rateTalkById(id, userId, newRating) {
   
 }
 
-
+// Export the module
 module.exports = Conf;
 

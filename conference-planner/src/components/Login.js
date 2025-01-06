@@ -1,32 +1,32 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
-
+import { useNavigate } from "react-router-dom"; 
+// Login component
 const Login = ({ setToken }) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const navigate = useNavigate(); // Initialize useNavigate
+    const navigate = useNavigate(); 
 
     const handleLogin = async (e) => {
         e.preventDefault();
-
+        // Send the login request
         const response = await fetch("http://localhost:3001/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password }),
         });
-
+        // Check if the login was successful
         if (response.ok) {
             const data = await response.json();
             setToken(data.token);
             sessionStorage.setItem("token", data.token);
-            sessionStorage.setItem("username", data.username); // Store username
-            navigate("/"); // Redirect to the home page after successful login
+            sessionStorage.setItem("username", data.username); 
+            navigate("/"); 
         } else {
             setError("Invalid username or password");
         }
     };
-
+    // Render the login form
     return (
         <div className="login-container">
             <h2>Login</h2>

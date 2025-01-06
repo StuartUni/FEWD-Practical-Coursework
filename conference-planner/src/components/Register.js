@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
-
+import { useNavigate } from "react-router-dom"; 
+// Register component
 const Register = () => {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
@@ -8,30 +8,30 @@ const Register = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
     const [message, setMessage] = useState("");
-    const navigate = useNavigate(); // Initialize useNavigate
-
+    const navigate = useNavigate(); 
+    // Handle the form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        // Check if the passwords match
         if (password !== confirmPassword) {
             setError("Passwords do not match.");
             return;
         }
-
+        // Check if the password meets the requirements
         if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}|:<>?~]).{8,}$/.test(password)) {
             setError("Password must be 8+ characters, include uppercase, lowercase, number, and special character.");
             return;
         }
-
+        // Reset the error and message
         setError(""); 
-
+        // Send the registration request
         try {
             const response = await fetch("http://localhost:3001/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, email, password }),
             });
-
+            // Check if the registration was successful
             const data = await response.json();
 
             if (response.ok) {
@@ -40,7 +40,7 @@ const Register = () => {
                 setEmail("");
                 setPassword("");
                 setConfirmPassword("");
-                setTimeout(() => navigate("/login"), 2000); // Redirect after 2 seconds
+                setTimeout(() => navigate("/login"), 2000); 
             } else {
                 setError(data.message || "Registration failed.");
             }
@@ -48,7 +48,7 @@ const Register = () => {
             setError("Something went wrong. Please try again.");
         }
     };
-
+    // Render the registration form
     return (
         <div className="register-container">
             <h2>Register</h2>

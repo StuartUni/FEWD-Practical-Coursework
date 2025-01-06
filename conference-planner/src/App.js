@@ -6,7 +6,7 @@ import TalkDetails from "./components/TalkDetails";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Itinerary from "./components/Itinerary";
-
+// App component
 function App() {
     const [token, setToken] = useState(sessionStorage.getItem("token") || null);
 
@@ -14,10 +14,10 @@ function App() {
         sessionStorage.removeItem("token");
         setToken(null);
     };
-
+    // Render the app
     return (
         <BrowserRouter>
-            {/* Header Section */}
+            
             <header>
                 <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
                     <div className="container-fluid">
@@ -38,7 +38,7 @@ function App() {
                 </nav>
             </header>
 
-            {/* Main Content */}
+            
             <main className="container my-4">
                 <Routes>
                     {/* Home Page */}

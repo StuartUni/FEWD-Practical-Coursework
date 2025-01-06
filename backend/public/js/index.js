@@ -1,10 +1,10 @@
 console.log("in script");
 
 async function registeruser(e) {
-    // stop the regular form submission
+    
     e.preventDefault();
 
-    // get the data from input box in form and embed in object
+    
     const user = document.getElementById("username_r");
     const pass = document.getElementById("password_r");
 
@@ -12,11 +12,11 @@ async function registeruser(e) {
         username: user.value,
         password: pass.value
     }
-    // clear input box
+    
     user.value="";
     pass.value="";
 
-    // set up and make asynchronous POST to API endpoint
+    
     const settings = {
         method: 'POST',
         headers: {
@@ -29,10 +29,10 @@ async function registeruser(e) {
 };
 
 async function loginuser(e) {
-    // stop the regular form submission
+    
     e.preventDefault();
 
-    // get the data from input box in form and embed in object
+    
     const user = document.getElementById("username_l");
     const pass = document.getElementById("password_l");
 
@@ -40,11 +40,11 @@ async function loginuser(e) {
         username: user.value,
         password: pass.value
     }
-    // clear input box
+   
     user.value="";
     pass.value="";
 
-    // set up and make asynchronous POST to API endpoint
+    
     const settings = {
         method: 'POST',
         headers: {
@@ -69,7 +69,7 @@ function logout(){
 
 
 async function getAppData(){
-    //token = document.getElementById("token").innerHTML;
+    
     token = sessionStorage.token;
     const settings = {
         method: 'GET',
