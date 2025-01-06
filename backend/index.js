@@ -2,6 +2,11 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 require("dotenv").config(); 
+const confDAO = require("./models/confModel");
+const conf = new confDAO({ filename: process.env.CONF_FILE_PATH, autoload: true });
+
+// Initialize the database
+conf.init();
 
 const app = express();
 
