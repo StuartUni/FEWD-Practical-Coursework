@@ -12,6 +12,9 @@ const auth = require("../middleware/auth");
 const Datastore = require("gray-nedb");
 const userDB = new Datastore({ filename: process.env.DATABASE_FILE_PATH, autoload: true });
 
+// Initialize the database
+conf.init();
+
 // Regular expression to validate email
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
